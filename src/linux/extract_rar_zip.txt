@@ -1,0 +1,83 @@
+	//
+	private boolean unRar(String fdir, String fname) {
+		// StringBuffer sb = new StringBuffer();
+		System.out.println("unRar:" + fdir + fname);
+		String result = "";
+		try {
+			Process process = null;
+			// unzip -o test.zip -d tmp/
+			// 将压缩文件test.zip在指定目录tmp下解压缩，如果已有相同的文件存在，要求unzip命令覆盖原先的文件。
+			if (fname.indexOf(".zip") != -1) {
+				// System.out.println("begin unzip:" + fname);
+				process = Runtime.getRuntime().exec("unzip -o " + fdir + fname + " -d " + fdir);
+				result = doWaitFor(process);
+				System.out.println("extract .zip file result:" + result);
+				return true;
+				// System.out.println("result unzip:" + result);
+			} else if (fname.indexOf(".rar") != -1) {
+				//需要安装 rarlinux		-o+ 覆盖不提醒
+				process = Runtime.getRuntime().exec("rar e -o+" + fdir + fname + " " + fdir);
+				result = doWaitFor(process);
+				System.out.println("extract .rar file result:" + result);
+				if (result.indexOf("All OK") != -1) {
+					return true;
+				}
+			} else {
+				return false;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public String doWaitFor(Process p) {
+		// int exitValue = -1; // returned to caller when p is finished
+		StringBuffer sb = new StringBuffer();
+		try {
+
+			BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream(), "GBK"));
+			boolean finished = false; // Set to true when p is finished
+
+			while (!finished) {
+				try {
+					String str = null;
+					while ((str = in.readLine()) != null) {
+						sb.append(str);
+					}
+
+					// Ask the process for its exitValue. If the process
+					// is not finished, an IllegalThreadStateException
+					// is thrown. If it is finished, we fall through and
+					// the variable finished is set to true.
+					// exitValue = p.exitValue();
+					finished = true;
+				} catch (IllegalThreadStateException e) {
+					e.printStackTrace();
+					// Process is not finished yet;
+					// Sleep a little to save on CPU cycles
+					Thread.sleep(500);
+				}
+			}
+		} catch (Exception e) {
+			// unexpected exception! print it out for debugging...
+			System.err.println("doWaitFor(): unexpected exception - " + e.getMessage());
+		}
+
+		// return completion status to caller
+		return sb.toString();
+	}
+
+	private static void searchFile(int id, String toDir, String fPath) {
+		File dir = new File(fPath);
+		File pics[] = dir.listFiles();
+		// dir是文件
+		if (pics == null) {
+			dir.renameTo(new File(toDir + id + "_" + dir.getName()));
+			return;
+		}
+		for (int i = 0; i < pics.length; i++) {
+			searchFile(id++, toDir, pics[i].getPath());
+		}
+		dir.delete();
+	}

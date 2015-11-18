@@ -1,0 +1,1 @@
+tail -f /data/app/tomcat1/logs/catalina.out

@@ -1,0 +1,28 @@
+
+------------js----------------
+$.ajax({
+	type : "get",
+	async:false,
+	url : "http://dealer.chetuan.com/4sdealer/getDeaLerListByJson?province="+province1+"&cityid="+cityid+"&serialid="+serialid+"&carid="+carid+"&page="+page+"&pagesize=3",
+	data: { pwd: '123', username: 'tl' }, 
+	dataType : "jsonp",
+	jsonp: "callbackparam",//服务端用于接收callback调用的function名的参数
+	jsonpCallback:"callback_getCarSeriallist",//callback的function名称
+	success : function(json){
+		alert("success"+json);
+		alert(json[0].name);
+	},
+	error:function(data){
+		alert("error"+data);
+	}
+});
+
+function callback_getCarSeriallist(json){   
+	//.....
+}
+
+--------------ACTINO-------------
+	String callbackFunName = request.getParameter("callbackparam");
+		setAjax(callbackFunName + "([ { name:\"John\"}])");
+		if (subFlag == 2)
+			return AJAX;

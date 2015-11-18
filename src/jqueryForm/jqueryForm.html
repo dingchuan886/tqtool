@@ -1,0 +1,233 @@
+
+
+<script src="${ctadm_ct_url}js/jquery.form.js?v=${cssVer}" type="text/javascript"></script>
+
+<script>
+
+//ajaxSubmit
+$(document).ready(function(){
+	
+	$("#sub_news_list_from").ajaxSubmit({ 
+		success: succSubNewsListFrom,	
+		error: errSubNewsListFrom
+	});
+	
+});
+
+function succSubNewsListFrom(data){
+$("#pop_up_body").html(data);
+}
+
+function errSubNewsListFrom(data){
+alert(data);
+}
+  
+//一般的submit修改
+function onModifyNews(news_id){
+	$("#form_page_list").attr("action", "pageModifyVi");
+	$("#news_id").val(news_id);
+	$("#form_page_list").submit();
+}
+
+
+//删除
+function onDeleteNews(news_id){
+	$.get("pageDeleteDo", {"news.id": news_id},
+	  function(data){
+	    alert(data);
+	    if(data == "删除成功")
+	    {
+	    	$("#form_page_list").submit();
+	    }
+	  });
+}
+
+
+//
+$(function(){
+
+	//全选/全不选
+	$('#check-all').on("click",function(){
+		var boo = $(this).is(":checked");
+		var cboxs = $("input[name='cb_news']");
+		boo?cboxs.prop('checked',true):cboxs.prop('checked',false);
+	});
+	
+	//复选框选中触发
+	$("input[name='cb_news']").on("change",function(){
+		//alert(this.id);
+		if(this.checked){
+			//alert(this.value);
+			addRelationNews(this.id, this.value);//在pageEditV.ftl中
+		}else{
+			delRelationNews(this.id);//在pageEditV.ftl中
+		}
+	});
+	
+	
+	
+	//关键字
+	$("#search_txt").on("change keyup", function(){
+		//alert($(this).val());
+		$("#keyWord").val($("#search_txt").val());
+	});
+	
+	//所有添加者
+	$("#select_addadmin").on("change", function(){
+		//alert($("#select_addadmin option:selected").val());
+		$("#addadmin").val($("#select_addadmin option:selected").val());
+	});
+	
+	//发布状态
+	$("#select_new_delete").on("change", function(){
+		$("#isdelete").val($("#select_new_delete option:selected").val());
+	});
+	
+	//所有新闻
+	$("#select_new_type").on("change", function(){
+		$("#newType").val($("#select_new_type option:selected").val());
+	});
+	
+	//所有发布
+	$("#inp_all_news").on("click", function(){
+		$("#search_txt").val("");
+		$("#keyWord").val($("#search_txt").val());
+		//
+		$("#select_addadmin").val("");
+		$("#addadmin").val("");
+		//
+		$("#select_new_delete").val(-1);
+		$("#isdelete").val(-1);
+		//
+		$("#select_new_type").val(0);
+		$("#newType").val(0);
+		//
+		$("#form_page_list").submit();
+	});
+	
+	//开始查找
+	$("#inp_serach").on("click", function(){
+		//alert($("#newType").val());
+		$("#form_page_list").submit();
+	});
+	
+	//开始查找
+	$("#inp_start_search").on("click", function(){
+		//alert($("#newType").val());
+		//$("#form_page_list").submit();
+		$("#form_page_list").ajaxSubmit({ 
+			success: alertcallUpPic,	
+			error: alerterrUpload
+		});
+	});
+	
+	
+	
+	
+});
+
+
+//添加新闻主题
+function onPageEditView(){
+	$("#form_page_list").attr("action", "pageEditV");
+	$("#form_page_list").submit();
+}
+
+  //跳转到
+  function toPage(page){
+  	//alert(page+"---"+$('#catalog_catalogid').val());
+  	$("#page").val(page);
+  	//$("#form_page_list").submit();
+  	$("#form_page_list").ajaxSubmit({ 
+			success: succSubPageList,
+			error: errSubPageList
+		});
+  }
+  
+  function succSubPageList(data){
+  	//alert(data);
+  	alertRelationCallBakSucc(data);
+  }
+  
+   function errSubPageList(data){
+  	alert("查询失败");
+  }
+  
+  
+
+
+
+$(document).ready(function() {
+	//createTree("新闻目录",'alert_news_catalog_tree', $("#node_id").val());
+	createTree3("新闻目录",'alert_news_catalog_tree', onclickAlertNode,  $("#node_id").val());
+});
+
+
+function onclickAlertNode(event, treeId, treeNode, clickFlag){
+	var pId = 0;
+	if(clickFlag.pId != null){
+		pId = clickFlag.pId
+	}
+	//保存当前节点，方便同步请求后该节点依然选择
+	$("#node_id").val(treeNode.tId);
+	//赋值
+	$("#catalog_catalogid").val(treeNode.id);
+	$("#catalog_catalogname").val(treeNode.name);
+	//
+	//$("#form_page_list").submit();
+	
+	$("#form_page_list").ajaxSubmit({ 
+		success: alertcallUpPic,	
+		error: alerterrUpload
+	});
+	
+}
+
+function alertcallUpPic(data){
+	//alert(data);
+	alertRelationCallBakSucc(data);//在pageEditV.ftl中
+}
+
+function alerterrUpload(data){
+	alert(data);
+}
+
+
+  function movePage()
+  {
+  	alert("movePage");
+  }
+  
+  function delPage()
+  {
+  
+  	alert("delPage");
+  }
+  
+   
+function checkAll(name)
+{
+    var el = document.getElementsByTagName('input');
+    var len = el.length;
+    for(var i=0; i<len; i++)
+    {
+        if((el[i].type=="checkbox") && (el[i].name==name))
+        {
+            el[i].checked = true;
+        }
+    }
+}
+
+function clearAll(name)
+{
+    var el = document.getElementsByTagName('input');
+    var len = el.length;
+    for(var i=0; i<len; i++)
+    {
+        if((el[i].type=="checkbox") && (el[i].name==name))
+        {
+            el[i].checked = false;
+        }
+    }
+}
+  </script>
